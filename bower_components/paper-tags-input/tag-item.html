@@ -1,0 +1,104 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+
+<!--
+tag-item is a tag element used by tags-input to show tags with a closed button.
+
+    <tag-item></tag-item>
+
+@demo
+-->
+<dom-module id="tag-item">
+
+  <style>
+    :host {
+      display: block;
+      box-sizing: border-box;
+      font-family: 'Roboto', 'Noto', sans-serif;
+    }    
+    .tag-item{
+      background-color: var(--light-primary-color);
+      border-radius: 20px;
+      float:left;
+      margin-left:6px;
+      margin-bottom:3px;
+      padding-left:6px;
+    }
+    #tag-value{
+      margin-top: 11px;     
+    }
+  </style>
+
+  <template>
+      <div class="tag-item">
+        <span id="tag-value">{{value}}</span>
+        <template is="dom-if" if="{{enableRemove}}">
+          <paper-icon-button on-tap="_removeItem" icon="icons:cancel"></paper-icon-button>
+        </template>
+        <template is="dom-if" if="{{!enableRemove}}">
+          <paper-icon-button style="visibility:hidden;" on-tap="remove" icon="icons:cancel"></paper-icon-button>
+        </template>
+      </div>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+    is: 'tag-item',
+    properties: {
+      /**
+      * index of the tag
+      */
+       index:Number,
+       /**
+       * Boolean flag to indicate if enable remove operation
+       */
+       enableRemove:{
+        type:Boolean,
+        value:true
+      }
+      ,
+      /**
+      * value of the tag
+      */
+       value:String,
+      /**
+      * value of the tags
+      */
+       tags:{
+        type:Array,
+        notify: true
+      },
+    },
+    /**
+     * _removeItem is the internal method to remove a tag from the tags list
+     *
+     * @param {object} event object
+     */
+    _removeItem: function(e){
+      if (this.enableRemove == false){
+        return;
+      }
+      var parent = e.target.parentElement.parentElement.parentElement;
+      var index = parent.index;
+      this.tags.splice(index,1);
+      this.tags = this.tags.slice();  
+    }
+
+  });
+
+</script>

@@ -1,0 +1,158 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+
+<dom-module id="feedback-form">
+  <style>
+    :host {
+      display: block;
+    }
+
+    @media (max-width: 600px) {
+      h1.paper-font-display1 {
+        font-size: 24px;
+      }
+    }
+    #my-button {
+    background: #4285f4;
+    color: white;
+    }
+  </style>
+  <template>
+    <iron-ajax
+      auto
+      url="https://fantuanchicago-feedback.appspot.com/_ah/api/fantuan/v1/restaurants?location=chicago"
+      params="{}"
+      handle-as="json"
+      last-response="{{restaurants}}"
+      on-response="handleResponse" 
+      debounce-duration="300"></iron-ajax>
+    <h1 class="paper-font-display1"><span>用户反馈</span></h1>
+    <paper-textarea label="想对饭团君说的话" value="{{comment}}"></paper-textarea>
+    <p>餐馆</p>
+    <paper-radio-group selected="{{restaurant}}" on-change="rest_change">
+        <template is="dom-repeat" items="{{restaurants.restaurants}}" flex> 
+          <paper-radio-button name="{{item.name}}">{{item.name}}</paper-radio-button>
+        </template>
+    </paper-radio-group>
+    <p>菜单 
+       <template is="dom-if" if="{{restaurant}}">
+        - <span>{{restaurant}}</span>
+    </template>
+    </p>
+    <template is="dom-if" if="{{restaurant_empty}}">
+      请先选餐厅，菜单会自动弹出哟
+    </template>
+    <paper-radio-group selected="{{entrie}}">
+     <template is="dom-repeat" items="{{entries}}" flex> 
+                <paper-radio-button name="{{item}}" >{{item}}</paper-radio-button>
+    </template>
+    </paper-radio-group>
+   
+    <p>量</p>
+    <paper-radio-group selected="{{quantity}}">
+      <paper-radio-button name="Full" label="1">Full</paper-radio-button>
+      <paper-radio-button name="Enough" label="2">Enough</paper-radio-button>
+      <paper-radio-button name="Still Hungry" label="3">Still Hungry</paper-radio-button>
+    </paper-radio-group>
+    <p>口味</p>
+    <paper-radio-group selected="{{flavor}}">
+      <paper-radio-button name="Delicious" label="1">Delicious</paper-radio-button>
+      <paper-radio-button name="Good" label="2">Good</paper-radio-button>
+      <paper-radio-button name="Not bad" label="3">Not bad</paper-radio-button>
+      <paper-radio-button name="Don't like" label="4">Don't like</paper-radio-button>
+    </paper-radio-group>
+    <p>送餐员服务</p>
+    <paper-radio-group selected="{{deliverman}}">
+      <paper-radio-button name="3" label="1">3</paper-radio-button>
+      <paper-radio-button name="2" label="2">2</paper-radio-button>
+      <paper-radio-button name="1" label="3">1</paper-radio-button>
+    </paper-radio-group>
+    <p>综合评分</p>
+    <paper-radio-group selected="{{overall_rating}}">
+      <paper-radio-button name="3" label="1">3</paper-radio-button>
+      <paper-radio-button name="2" label="2">2</paper-radio-button>
+      <paper-radio-button name="1" label="3">1</paper-radio-button>
+    </paper-radio-group>
+
+    
+
+    <p>
+    <paper-button id="my-button" raised on-tap="submit">
+      <!-- <iron-icon icon="favorite"></iron-icon> -->
+      提交
+    </paper-button>
+    </p>
+    <!-- Listens for "input" event and sets greeting to <input>.value -->
+  </template>
+</dom-module>
+<script>
+  (function() {
+    Polymer({
+      is: 'feedback-form',
+      properties: {
+        restaurant_empty: {
+          type: Boolean,
+          value: true
+        },
+        restaurant:String
+      },
+      rest_change: function(e){
+        this.restaurant_empty = false;
+        for (var i = 0; i < this.restaurants.restaurants.length; i ++){
+          var rest = this.restaurants.restaurants[i];
+          console.log(rest.name);
+          console.log(e.target.innerText.trim());
+          if (rest.name == e.target.innerText.trim()){
+            this.entries = rest.entries;
+          }
+        }
+        console.log(this.entries);
+      },
+      handleResponse: function(e){
+        this.entries = [];
+      },
+      submit: function(){
+        console.log("submit form");
+        console.log(this.restaurant);
+        var url = "https://fantuanchicago-feedback.appspot.com/_ah/api/fantuan/v1/feedback";
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open('POST', url, true);
+        xmlhttp.setRequestHeader("Content-type", "application/json");
+        xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+                // console.log(xmlhttp.response);
+                // app.route="thanks";
+                // document.querySelector('#page_container').scroller.scrollTop = 0;
+                page('/thanks');
+            }
+        }
+        data = {
+          "restaurant":this.restaurant,
+          "deliverman":this.deliverman,
+          "entrie":this.entrie,
+          "flavor":this.flavor,
+          "overall_rating":this.overall_rating,
+          "quantity":this.quantity,
+          "comment":this.comment,
+          "useremail":app.useremail
+        };
+        console.log(data);
+        var a = JSON.stringify(data);
+        console.log(a);
+        xmlhttp.send(a);
+
+      }
+      
+    });
+  })();
+</script>

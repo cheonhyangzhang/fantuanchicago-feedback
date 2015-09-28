@@ -1,0 +1,177 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!-- <link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html"> -->
+<!-- <link rel="import" href="../../bower_components/paper-button/paper-button.html"> -->
+<!-- <link rel="import" href="../../bower_components/iron-icon/iron-icon.html"> -->
+
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<dom-module id="admin-page">
+  <style>
+    :host {
+      display: block;
+    }
+
+    @media (max-width: 600px) {
+      h1.paper-font-display1 {
+        font-size: 24px;
+      }
+    }
+    .primary-button {
+    background: #4285f4;
+    color: white;
+    }
+    .inherit {
+      color: inherit;
+      background-color: inherit;
+    }
+    .header {
+      /* layout properties for a local DOM element */
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    paper-toast {
+      left: auto;
+      bottom: 40px;
+      right: 10px;
+    }
+  </style>
+  <template>
+<!--         <iron-ajax
+      auto
+      url="https://fantuanchicago-feedback.appspot.com/_ah/api/fantuan/v1/roles?name=admin"
+      params="{}"
+      handle-as="json"
+      last-response="{{admins}}"
+      debounce-duration="300"></iron-ajax> -->
+      <iron-ajax
+      auto
+      url="https://fantuanchicago-feedback.appspot.com/_ah/api/fantuan/v1/restaurants?location=chicago"
+      params="{}"
+      handle-as="json"
+      last-response="{{restaurants}}"
+      debounce-duration="300"></iron-ajax>
+<!-- 
+      <iron-ajax
+      auto
+      url="http://localhost:24999/_ah/api/fantuan/v1/restaurants?location=chicago"
+      params="{}"
+      handle-as="json"
+      last-response="{{restaurants}}"
+      debounce-duration="300"></iron-ajax> -->
+
+    <div  class="header">
+      <span class="paper-font-display1">管理员</span><span>{{messageToShow}}</span>
+      <span class="flex"></span>
+          <paper-button  on-tap="save" class="primary-button" raised >
+              SAVE
+          </paper-button>
+    </div>
+    <div>
+      <h2>{{restaurants.location}}</h2>
+      <div>
+        <paper-input value="{{restaurantToAdd}}" label="Add Restaurant" >
+        </paper-input>
+        <paper-button raised on-tap="addRestaurant" class="primary-button">
+          Add 
+        </paper-button>
+        <paper-input value="{{restaurantToRemove}}" label="Remove Restaurant" >
+        </paper-input>
+        <paper-button raised on-tap="removeRestaurant" class="primary-button">
+          Remove 
+        </paper-button>
+      </div>
+      <template is="dom-repeat" items="{{restaurants.restaurants}}">
+        <div>
+        <h3><span flex>{{item.name}}</span></h3>
+        <paper-tags-input tags="{{item.entries}}">
+        </paper-tags-input>
+        </div>
+      </template>
+    </div>
+     <paper-toast id="newRestaurantAdded" text="New Restaurant Added" ></paper-toast>
+     <paper-toast id="restaurantRemoved" text="Restaurant removed" ></paper-toast>
+     <paper-toast id="restaurantNotFound" text="Restaurant name not found" ></paper-toast>
+     <paper-toast id="saved" text="Changes saved" ></paper-toast>
+  </template>
+</dom-module>
+<script>
+  (function() {
+    Polymer({
+      is: 'admin-page',
+      properties: {
+        greeting: {
+          type: String,
+          value: 'Welcome!',
+          notify: true
+        },
+        restaurant:String,
+        restaurantToAdd:String
+      },
+      golink:function(e){
+        // window.location.href = e.target.getAttribute('link');
+      },
+      save:function(e){
+        gapi.client.fantuan.restaurants.patch({'location':this.restaurants.location, 'restaurants':this.restaurants.restaurants}).execute(function(resp){
+            if (!resp.code){
+              document.querySelector('#saved').show();
+            }
+        });
+      },
+      _updateRestaurant:function(){
+        var newRestaurantDict = {};
+        newRestaurantDict['location'] = this.restaurants.location;
+        newRestaurantDict['restaurants'] = this.restaurants.restaurants.slice();
+        this.restaurants = newRestaurantDict;
+      },
+      _showMessage:function(msg){
+        // this.messageToShow = msg;
+        // document.querySelector('#message').show();
+      },
+      addRestaurant:function(e){
+        var newRestaurant = {};
+        newRestaurant['name'] = this.restaurantToAdd;
+        newRestaurant['entries'] = [];
+        this.restaurants.restaurants.unshift(newRestaurant);
+        this._updateRestaurant();
+        document.querySelector('#newRestaurantAdded').show();
+      },
+      removeRestaurant:function(e){
+        console.log("removeRestaurant");
+        console.log(this.restaurantToRemove);
+        var index = -1;
+        for (var i = 0; i < this.restaurants.restaurants.length; i ++){
+          if (this.restaurants.restaurants[i].name == this.restaurantToRemove){
+            index = i;
+          }
+        }
+        var confirmed = confirm("Do you want to remove " + this.restaurantToRemove + " ?");
+        console.log("confirmed");
+        console.log(confirmed);
+        if (confirmed){
+          // console.log("Removed");
+          if (index >= 0){
+            this.restaurants.restaurants.splice(index, 1);
+            this._updateRestaurant();
+            document.querySelector('#restaurantRemoved').show();
+          }
+          else{
+            document.querySelector('#restaurantNotFound').show();
+          }
+        } 
+        else{
+          // console.log("Not removed");
+        }
+      }
+      
+      
+    });
+  })();
+</script>

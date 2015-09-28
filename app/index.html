@@ -1,0 +1,301 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!doctype html>
+<html lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Polymer Starter Kit" />
+  <title>饭团</title>
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+  <!-- Chrome for Android theme color -->
+  <meta name="theme-color" content="#303F9F">
+
+  <!-- Web Application Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Tile color for Win8 -->
+  <meta name="msapplication-TileColor" content="#3372DF">
+
+  <!-- Add to homescreen for Chrome on Android -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Polymer Starter Kit">
+  <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
+
+  <!-- Add to homescreen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Polymer Starter Kit">
+  <link rel="apple-touch-icon" href="images/touch/apple-touch-icon.png">
+
+  <!-- Tile icon for Win8 (144x144) -->
+  <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
+
+  <!-- build:css styles/main.css -->
+  <link rel="stylesheet" href="styles/main.css">
+  <!-- endbuild-->
+
+  <!-- build:js bower_components/webcomponentsjs/webcomponents-lite.min.js -->
+  <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <!-- endbuild -->
+
+  <!-- will be replaced with elements/elements.vulcanized.html -->
+  <link rel="import" href="elements/elements.html">
+  <!-- endreplace-->
+</head>
+<style>
+.avatar{
+  width:30px;
+  height:30px;
+  border-radius: 50%;
+  margin-right:16px;
+  background-color: #00BCD4;
+}
+</style>
+
+<body unresolved class="fullbleed layout vertical">
+  <span id="browser-sync-binding"></span>
+  <template is="dom-bind" id="app">
+      <paper-drawer-panel id="paperDrawerPanel">
+      <div drawer>
+        <!-- Drawer Toolbar -->
+        <paper-toolbar id="drawerToolbar">
+          <span class="paper-font-title">菜单</span>
+        </paper-toolbar>
+
+        <!-- Drawer Content -->
+          <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
+              <a data-route="home" href="/">
+                <iron-icon icon="icons:assignment"></iron-icon>
+                <span>用户反馈</span>
+              </a>
+<!--               <a data-route="entries" href="/entries">
+                <iron-icon icon="icons:menu"></iron-icon>
+                <span>所有菜品</span>
+              </a> -->
+              <template is="dom-if" if="{{isadmin}}">
+              <a data-route="feedbacks" href="/feedbacks">
+                <iron-icon icon="editor:insert-chart"></iron-icon>
+                <span>所有反馈</span>
+              </a>
+              </template>
+
+              <template is="dom-if" if="{{isadmin}}">
+              <a data-route="admin" href="/admin">
+                <iron-icon icon="editor:insert-chart"></iron-icon>
+                <span>管理员</span>
+              </a>
+              </template>
+              <hr>
+              <a>
+                  <iron-icon style="visibility:hidden;" icon="icons:assignment"></iron-icon>
+                  <google-signin client-id="547523974349-oalhr2lmk5fjrlrvqs52dq3uivq659bq.apps.googleusercontent.com" scopes="profile" ></google-signin>
+              </a>
+            
+           
+          </paper-menu>
+      </div>
+
+     
+      <paper-header-panel id="page_container" main>
+        <!-- Main Toolbar -->
+        <paper-toolbar id="mainToolbar">
+          <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
+          <span class="flex"></span>
+          <!-- Toolbar icons -->
+            <template is="dom-if" if="{{logined}}">
+           <span>{{useremail}}</span>
+          </template>
+          <!-- <template is="dom-if" if="{{notlogined}}"> -->
+          <!-- <google-signin client-id="547523974349-oalhr2lmk5fjrlrvqs52dq3uivq659bq.apps.googleusercontent.com" scopes="profile " ></google-signin> -->
+          <!-- </template> -->
+<!--           <paper-icon-button icon="refresh"></paper-icon-button>
+          <paper-icon-button icon="search"></paper-icon-button> -->
+
+          <!-- Application name -->
+        
+          <div class="middle paper-font-display2 app-name">饭团</div>
+           <!-- <span>{{user.name}}</span> -->
+
+          <!-- Application sub title -->
+          <div class="bottom title"></div>
+
+        </paper-toolbar>
+
+        <!-- Main Content -->
+        <div class="content" id="tabs">
+          <iron-pages  attr-for-selected="data-route" selected="{{route}}">
+
+            <section data-route="home">
+              <paper-material elevation="1">
+                <feedback-form></feedback-form>           
+              </paper-material>
+            </section>
+            <section data-route="feedbacks">
+              <paper-material elevation="1">
+              <template is="dom-if" if="{{isadmin}}">
+               <all-feedbacks></all-feedbacks>
+             </template>
+              </paper-material>
+            </section>
+<!--             <section data-route="entries">
+              <paper-material elevation="1">
+               <all-entries></all-entries>
+              </paper-material>
+            </section> -->
+            <section data-route="admin">
+              <paper-material elevation="1">
+              <template is="dom-if" if="{{isadmin}}">
+               <admin-page></admin-page>
+              </template>
+              </paper-material>
+            </section>
+
+            <section data-route="thanks">
+              <paper-material elevation="1">
+                <h2 class="paper-font-display2">谢谢您的反馈</h2>
+                <p>饭团君谢谢您的评价</p>
+              </paper-material>
+            </section>
+
+          </iron-pages>
+        </div>
+      </paper-header-panel>
+    </paper-drawer-panel>
+
+<!-- 
+    <paper-toast id="caching-complete"
+                 duration="6000"
+                 text="Caching complete! This app will work offline.">
+    </paper-toast>
+
+    <platinum-sw-register auto-register
+                          clients-claim
+                          skip-waiting
+                          on-service-worker-installed="displayInstalledToast">
+      <platinum-sw-cache default-cache-strategy="networkFirst"
+                         precache-file="precache.json">
+      </platinum-sw-cache>
+    </platinum-sw-register> -->
+    <google-client-loader id="plusapi"
+  name="plus"
+  version="v1"></google-client-loader>
+  </template>
+
+
+  <!-- build:js scripts/app.js -->
+  <script src="scripts/app.js"></script>
+  <!-- endbuild-->
+  <script>
+  sayswho= function(){
+      var ua= navigator.userAgent, tem, 
+      M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+      if(/trident/i.test(M[1])){
+          tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+          return 'IE '+(tem[1] || '');
+      }
+      if(M[1]=== 'Chrome'){
+          tem= ua.match(/\bOPR\/(\d+)/);
+          if(tem!= null) return 'Opera '+tem[1];
+      }
+      M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+      if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+      return M
+  };
+  var admins = ['fantuanchicago@gmail.com','kaishu00@gmail.com','lluo6@hawk.iit.edu', 'cenhiangapply@gmail.com'];
+  checkBrowser = function(){
+    var browser = sayswho();
+    var alert_message = "Not supported by current browser. Supported browser:Chrome, Firefox, Safari 7+, IE11+.";
+    if (browser[0] == "Chrome"){
+    }
+    else if (browser[0] == "Firefox"){
+
+    }
+    else if (browser[0] == "Safari"){
+      if (parseInt(browser[1]) < 7){
+        alert(alert_message);
+      }
+    }
+    else if (browser[0] == "IE"){
+      if (parseInt(browser[1]) < 11){
+        alert(alert_message);
+      }
+    }
+    else{
+    }
+  };
+  checkBrowser();
+  document.addEventListener('google-api-load', function(event) {
+      app.plusapi = document.getElementById('plusapi').api;
+      if (app.logined == true){
+          var request = app.plusapi.people.get({
+             userId: 'me'
+          });
+          request.execute(function(resp) {
+            app.userimage = resp.image.url.replace(/(.+)\?sz=\d\d/, "$1?sz=" + "30");
+          });
+      }
+  });
+
+
+  fantuan_callback = function(e){
+    
+    var currentUser = gapi.auth2.getAuthInstance().currentUser.get();
+    app.token = currentUser.getAuthResponse().access_token;
+    app.token_type = currentUser.getAuthResponse().token_type;
+    app.useremail = currentUser.getBasicProfile().getEmail();
+    app.username = currentUser.getBasicProfile().getName();
+    gapi.client.fantuan.roles.check({'role':'admin'}).execute(function(resp){
+      if (resp.resp == "true"){
+        app.isadmin = true;
+      }
+    });
+    app.logined = true;
+    app.notlogined = false;
+    if (app.plusapi){
+      var request = app.plusapi.people.get({
+           userId: 'me'
+        });
+        request.execute(function(resp) {
+          app.userimage = resp.image.urle
+        });
+    } 
+  }
+  document.addEventListener("google-signin-success", function(e) {
+      var fantuan_api = "";
+      if (app.dev == false){
+        fantuan_api = 'https://fantuanchicago-feedback.appspot.com/_ah/api';
+      }
+      else{
+        fantuan_api = 'http://localhost:24999/_ah/api';
+      }
+      gapi.client.load('fantuan', 'v1', fantuan_callback, fantuan_api);
+      
+    });
+
+    document.addEventListener("google-signed-out", function() {
+      app.useremail = 'unknown';
+      app.username = 'unknown';
+      app.isadmin = false;
+      app.logined = false;
+      app.notlogined = true;
+    });
+
+    document.addEventListener("google-signout-attempted", function() {
+        // document.querySelector("#status").innerHTML = "You attempted to sign out.";
+    });
+    </script>
+</body>
+
+</html>
